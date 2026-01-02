@@ -1,11 +1,13 @@
 // Serve Cigarrgrossen files with correct MIME types
-// This function intercepts requests to /cigarrgrossen/* and ensures assets are served correctly
+// This function MUST run before _redirects to ensure assets get correct MIME types
 export async function onRequest({ request, next }: { request: Request; next: () => Promise<Response> }) {
   const url = new URL(request.url);
   const path = url.pathname;
   
-  // Log for debugging
-  console.log(`[Cigarrgrossen Function] Request: ${path}`);
+  // Only handle /cigarrgrossen paths
+  if (!path.startsWith('/cigarrgrossen/')) {
+    return next();
+  }
   
   // Check if this is an asset file request
   const isAsset = /\.(js|mjs|css|json|wasm|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|webp)$/i.test(path);
@@ -16,29 +18,26 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   // Get content type
   const contentType = response.headers.get('content-type') || '';
   
-  // Log response details
-  console.log(`[Cigarrgrossen Function] Response for ${path}: status=${response.status}, contentType=${contentType}, isAsset=${isAsset}`);
-  
   // If it's an asset request
   if (isAsset) {
-    // If we got HTML, the file wasn't found (404 fallback)
+    // If we got HTML, the file wasn't found (404 fallback from _redirects)
     if (contentType.includes('text/html')) {
-      console.error(`[Cigarrgrossen Function] Asset not found: ${path}, got HTML instead`);
-      return new Response(`Asset not found: ${path}`, { 
+      console.error(`[Cigarrgrossen] Asset ${path} returned HTML - file not found or redirect issue`);
+      // Return 404 with plain text to avoid MIME type confusion
+      return new Response(`404: Asset not found: ${path}`, { 
         status: 404,
         headers: { 
-          'Content-Type': 'text/plain',
+          'Content-Type': 'text/plain; charset=utf-8',
           'X-Debug-Path': path,
-          'X-Debug-Function': 'cigarrgrossen',
         }
       });
     }
     
-    // If we got the file successfully, ensure correct MIME type
+    // If we got the file successfully, FORCE correct MIME type
     if (response.status === 200) {
       const headers = new Headers(response.headers);
       
-      // Force correct MIME types based on file extension
+      // ALWAYS override Content-Type for assets to ensure correct MIME type
       if (path.endsWith('.css')) {
         headers.set('Content-Type', 'text/css; charset=utf-8');
       } else if (path.endsWith('.js') || path.endsWith('.mjs')) {
@@ -49,9 +48,10 @@ export async function onRequest({ request, next }: { request: Request; next: () 
         headers.set('Content-Type', 'application/wasm');
       }
       
-      // Add cache headers
-      headers.set('Cache-Control', 'public, max-age=31536000, immutable');
-      headers.set('X-Debug-Function', 'cigarrgrossen');
+      // Ensure no HTML content type
+      if (headers.get('Content-Type')?.includes('text/html')) {
+        headers.set('Content-Type', 'application/javascript; charset=utf-8');
+      }
       
       return new Response(response.body, {
         status: response.status,

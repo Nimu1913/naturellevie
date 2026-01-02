@@ -1,3 +1,5 @@
+# Headers for Cigarrgrossen assets
+# These paths are relative to /cigarrgrossen/ when deployed
 /assets/*.js
   Content-Type: application/javascript; charset=utf-8
 
@@ -13,9 +15,6 @@
 /assets/*.wasm
   Content-Type: application/wasm
 
-/*.js
-  Content-Type: application/javascript; charset=utf-8
-
-/*.mjs
-  Content-Type: application/javascript; charset=utf-8
+/assets/*
+  X-Content-Type-Options: nosniff
 
