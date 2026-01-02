@@ -1,5 +1,4 @@
-export async function onRequestPost({ request, env }: { request: Request; env: { RESEND_API_KEY: string } }) {
-
+export async function onRequestPost({ request }: { request: Request }) {
   try {
     const { name, email, message } = await request.json();
 
@@ -10,40 +9,54 @@ export async function onRequestPost({ request, env }: { request: Request; env: {
       );
     }
 
-    // Send email using Resend API
-    const resendResponse = await fetch('https://api.resend.com/emails', {
+    // Send email using MailChannels (free, built into Cloudflare)
+    const emailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Obsidian Peaks <onboarding@resend.dev>', // Change to your verified domain after setup
-        to: ['info@obsidianpeaks.com'],
-        replyTo: email,
+        personalizations: [
+          {
+            to: [{ email: 'info@obsidianpeaks.com', name: 'Obsidian Peaks' }],
+            reply_to: { email: email, name: name },
+          },
+        ],
+        from: {
+          email: 'noreply@obsidianpeaks.com',
+          name: 'Obsidian Peaks Contact Form',
+        },
         subject: `Contact Form: ${name}`,
-        html: `
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Message:</strong></p>
-          <p>${message.replace(/\n/g, '<br>')}</p>
-        `,
-        text: `
-          New Contact Form Submission
-          
-          Name: ${name}
-          Email: ${email}
-          
-          Message:
-          ${message}
-        `,
+        content: [
+          {
+            type: 'text/html',
+            value: `
+              <h2>New Contact Form Submission</h2>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Message:</strong></p>
+              <p>${message.replace(/\n/g, '<br>')}</p>
+            `,
+          },
+          {
+            type: 'text/plain',
+            value: `
+              New Contact Form Submission
+              
+              Name: ${name}
+              Email: ${email}
+              
+              Message:
+              ${message}
+            `,
+          },
+        ],
       }),
     });
 
-    if (!resendResponse.ok) {
-      const error = await resendResponse.json();
-      console.error('Resend API error:', error);
+    if (!emailResponse.ok) {
+      const error = await emailResponse.text();
+      console.error('MailChannels API error:', error);
       return new Response(
         JSON.stringify({ error: 'Failed to send email' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -81,4 +94,3 @@ export async function onRequestOptions() {
     },
   });
 }
-

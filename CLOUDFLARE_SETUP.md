@@ -1,47 +1,39 @@
 # Cloudflare Pages Email Setup
 
-## 1. Get Resend API Key
+## Using MailChannels (Free, No API Key Required)
 
-1. Sign up at [resend.com](https://resend.com)
-2. Go to API Keys section
-3. Create a new API key
-4. Copy the key (starts with `re_`)
+This setup uses MailChannels, which is free and integrated with Cloudflare. No external services or API keys needed!
 
-## 2. Add Domain to Resend (Optional but Recommended)
+### Setup Steps
 
-1. In Resend dashboard, go to Domains
-2. Add `obsidianpeaks.com` (or your domain)
-3. Verify DNS records in Cloudflare
-4. Update the `from` email in `functions/api/contact.ts` to use your verified domain
+1. **Deploy to Cloudflare Pages**
+   - Push your code to GitHub
+   - In Cloudflare Dashboard → Pages → Create Project
+   - Connect your repository
+   - Build settings:
+     - **Build command:** `npm run build`
+     - **Build output directory:** `dist`
+     - **Deploy command:** (leave empty)
 
-## 3. Deploy to Cloudflare Pages
+2. **Add DNS Record (Required for MailChannels)**
+   - In Cloudflare Dashboard → DNS → Records
+   - Add a TXT record:
+     - **Name:** `_mailchannels`
+     - **Content:** `v=mc1;`
+   - This authorizes MailChannels to send from your domain
 
-1. Push your code to GitHub/GitLab
-2. In Cloudflare Dashboard → Pages → Create Project
-3. Connect your repository
-4. Build settings:
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-   - **Deploy command:** (leave empty - Pages auto-deploys)
-5. Go to Settings → Environment Variables
-6. Add: `RESEND_API_KEY` = `your_resend_api_key`
+3. **Update Email Addresses (Optional)**
+   - Edit `functions/api/contact.ts`
+   - Change `noreply@obsidianpeaks.com` to your domain
+   - Change `info@obsidianpeaks.com` to your receiving email
 
-**Important:** Make sure the "Deploy command" field is **empty**. Pages automatically deploys the `dist` folder and detects the `functions` folder.
+### How It Works
 
-## 4. Test Locally (Optional)
+- Form submissions go to `/api/contact`
+- The function sends an email via MailChannels to `info@obsidianpeaks.com`
+- The reply-to is set to the form submitter's email
+- No API keys, no external services needed!
 
-```bash
-# Install Wrangler CLI
-npm install -g wrangler
+### Testing
 
-# Login to Cloudflare
-wrangler login
-
-# Run locally with environment variables
-wrangler pages dev dist --compatibility-date=2024-01-01
-```
-
-## Alternative: Use Cloudflare Email Workers
-
-If you prefer not to use Resend, you can use Cloudflare's Email Workers with MailChannels (free tier available).
-
+After deployment, test the contact form. Emails will be sent directly to `info@obsidianpeaks.com` with the form details.
