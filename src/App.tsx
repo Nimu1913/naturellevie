@@ -181,7 +181,7 @@ function App() {
         </div>
 
         {/* Enhanced smooth transition gradient at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent via-obsidian-900/40 via-obsidian-900/70 to-obsidian-900 z-10 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent via-obsidian-900/50 to-obsidian-900 z-10 pointer-events-none" />
         {/* Additional fade layer for smoother transition */}
         <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-b from-transparent via-obsidian-900/20 to-obsidian-900/90 z-10 pointer-events-none" />
       </section>
