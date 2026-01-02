@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { translations, Language } from './translations';
+import { translations } from './translations';
+import type { Language } from './translations';
 
 interface LanguageContextType {
   language: Language;
