@@ -1,6 +1,3 @@
+# Obsidian Peaks SPA fallback
 /*    /index.html   200
-
-# Serve Cigarrgrossen assets correctly
-/cigarrgrossen/assets/*    /cigarrgrossen/assets/:splat   200
-/cigarrgrossen/*    /cigarrgrossen/index.html   200
 
