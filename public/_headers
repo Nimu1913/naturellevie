@@ -10,6 +10,15 @@
 /assets/*.json
   Content-Type: application/json; charset=utf-8
 
+/cigarrgrossen/assets/*.js
+  Content-Type: application/javascript; charset=utf-8
+
+/cigarrgrossen/assets/*.mjs
+  Content-Type: application/javascript; charset=utf-8
+
+/cigarrgrossen/assets/*.css
+  Content-Type: text/css; charset=utf-8
+
 /*.js
   Content-Type: application/javascript; charset=utf-8
 
