@@ -1,3 +1,7 @@
 # Obsidian Peaks SPA fallback
 /*    /index.html   200
 
+# Cigarrgrossen - serve assets first, then SPA fallback
+/cigarrgrossen/assets/*    /cigarrgrossen/assets/:splat   200
+/cigarrgrossen/*    /cigarrgrossen/index.html   200
+
