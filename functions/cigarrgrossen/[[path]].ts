@@ -5,17 +5,17 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   // Extract the path after /cigarrgrossen
   let path = url.pathname.replace(/^\/cigarrgrossen/, '') || '/';
   
-  // Remove leading slash if present (to avoid double slashes)
-  if (path.startsWith('/')) {
-    path = path.substring(1);
+  // Ensure path starts with /
+  if (!path.startsWith('/')) {
+    path = '/' + path;
   }
   
   // Cigarrgrossen Pages deployment URL
   const cigarrgrossenUrl = 'https://cigarrgrossen.pages.dev';
   
-  // Build the target URL - Cigarrgrossen has base path /cigarrgrossen/ so we need to add it
-  const targetPath = path ? `/cigarrgrossen/${path}` : '/cigarrgrossen/';
-  const targetUrl = `${cigarrgrossenUrl}${targetPath}${url.search}`;
+  // Cigarrgrossen is built with base: '/cigarrgrossen/', so assets are at /cigarrgrossen/assets/...
+  // The path already includes /cigarrgrossen from the base, so we use it directly
+  const targetUrl = `${cigarrgrossenUrl}${path}${url.search}`;
   
   // Fetch from the Cigarrgrossen deployment
   const response = await fetch(targetUrl, {
@@ -30,8 +30,16 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   // Get content type
   const contentType = response.headers.get('content-type') || '';
   
+  // Check if response is actually HTML (404 page) when we expected an asset
+  const isAssetRequest = url.pathname.match(/\.(css|js|mjs|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|webp)$/i);
+  
+  // If we got HTML but expected an asset, the file doesn't exist - return 404
+  if (isAssetRequest && contentType.includes('text/html') && response.status === 200) {
+    return new Response('Asset not found', { status: 404 });
+  }
+  
   // For non-HTML assets (CSS, JS, images, etc.), return as-is with correct headers
-  if (!contentType.includes('text/html')) {
+  if (!contentType.includes('text/html') || isAssetRequest) {
     const headers = new Headers(response.headers);
     // Ensure correct MIME types
     if (url.pathname.endsWith('.css')) {
