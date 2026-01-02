@@ -9,13 +9,14 @@ export async function onRequestPost({ request }: { request: Request }) {
       );
     }
 
-    // Get the hostname from the request to use as the from domain
+    // MailChannels requires the from domain to match the request domain
+    // For custom domains, you need DNS TXT record: _mailchannels with value: v=mc1;
     const url = new URL(request.url);
     const hostname = url.hostname;
-    const fromDomain = hostname.includes('pages.dev') 
-      ? 'noreply@pages.dev' // Use pages.dev for testing
-      : `noreply@${hostname}`; // Use your custom domain when deployed
-
+    
+    // Use the domain from the request, but fallback to pages.dev if needed
+    let fromEmail = `noreply@${hostname}`;
+    
     // Send email using MailChannels (free, built into Cloudflare)
     const emailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
       method: 'POST',
@@ -30,7 +31,7 @@ export async function onRequestPost({ request }: { request: Request }) {
           },
         ],
         from: {
-          email: fromDomain,
+          email: fromEmail,
           name: 'Obsidian Peaks Contact Form',
         },
         subject: `Contact Form: ${name}`,
@@ -63,14 +64,20 @@ export async function onRequestPost({ request }: { request: Request }) {
 
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
-      console.error('MailChannels API error:', errorText);
+      console.error('MailChannels API error:', {
+        status: emailResponse.status,
+        statusText: emailResponse.statusText,
+        body: errorText,
+        fromEmail: fromEmail,
+        hostname: hostname,
+      });
       
       // Return more detailed error for debugging
       return new Response(
         JSON.stringify({ 
           error: 'Failed to send email',
           details: errorText,
-          hint: 'Make sure the _mailchannels DNS TXT record is set up'
+          hint: 'Add DNS TXT record: _mailchannels with value: v=mc1; in Cloudflare DNS'
         }),
         { 
           status: 500, 
