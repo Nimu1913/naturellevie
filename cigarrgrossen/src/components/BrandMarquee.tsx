@@ -27,7 +27,7 @@ export const BrandMarquee = () => {
 
   return (
     <div className="w-full overflow-hidden py-4">
-      <div className="flex w-max animate-marquee whitespace-nowrap">
+      <div className="flex animate-marquee" style={{ width: 'max-content' }}>
         {/* First set */}
         {brands.map((brand, index) => (
           <BrandItem key={`a-${index}`} brand={brand} />
