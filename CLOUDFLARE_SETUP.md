@@ -20,10 +20,13 @@
 2. In Cloudflare Dashboard → Pages → Create Project
 3. Connect your repository
 4. Build settings:
-   - Build command: `npm run build`
-   - Build output directory: `dist`
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+   - **Deploy command:** (leave empty - Pages auto-deploys)
 5. Go to Settings → Environment Variables
 6. Add: `RESEND_API_KEY` = `your_resend_api_key`
+
+**Important:** Make sure the "Deploy command" field is **empty**. Pages automatically deploys the `dist` folder and detects the `functions` folder.
 
 ## 4. Test Locally (Optional)
 

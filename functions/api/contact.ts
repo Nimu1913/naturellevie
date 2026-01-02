@@ -1,9 +1,4 @@
-interface Env {
-  RESEND_API_KEY: string;
-}
-
-export async function onRequestPost(context: { request: Request; env: Env }) {
-  const { request, env } = context;
+export async function onRequestPost({ request, env }: { request: Request; env: { RESEND_API_KEY: string } }) {
 
   try {
     const { name, email, message } = await request.json();
