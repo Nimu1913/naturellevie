@@ -9,6 +9,13 @@ export async function onRequestPost({ request }: { request: Request }) {
       );
     }
 
+    // Get the hostname from the request to use as the from domain
+    const url = new URL(request.url);
+    const hostname = url.hostname;
+    const fromDomain = hostname.includes('pages.dev') 
+      ? 'noreply@pages.dev' // Use pages.dev for testing
+      : `noreply@${hostname}`; // Use your custom domain when deployed
+
     // Send email using MailChannels (free, built into Cloudflare)
     const emailResponse = await fetch('https://api.mailchannels.net/tx/v1/send', {
       method: 'POST',
@@ -23,7 +30,7 @@ export async function onRequestPost({ request }: { request: Request }) {
           },
         ],
         from: {
-          email: 'noreply@obsidianpeaks.com',
+          email: fromDomain,
           name: 'Obsidian Peaks Contact Form',
         },
         subject: `Contact Form: ${name}`,
@@ -55,11 +62,23 @@ export async function onRequestPost({ request }: { request: Request }) {
     });
 
     if (!emailResponse.ok) {
-      const error = await emailResponse.text();
-      console.error('MailChannels API error:', error);
+      const errorText = await emailResponse.text();
+      console.error('MailChannels API error:', errorText);
+      
+      // Return more detailed error for debugging
       return new Response(
-        JSON.stringify({ error: 'Failed to send email' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'Failed to send email',
+          details: errorText,
+          hint: 'Make sure the _mailchannels DNS TXT record is set up'
+        }),
+        { 
+          status: 500, 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          } 
+        }
       );
     }
 
