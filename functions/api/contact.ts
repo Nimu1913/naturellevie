@@ -41,7 +41,7 @@ export async function onRequestPost({ request, env }: { request: Request; env: {
         'Authorization': `Bearer ${env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Obsidian Peaks <onboarding@resend.dev>', // Replace with your verified domain later
+        from: 'Obsidian Peaks <noreply@obsidianpeaks.com>', // Using verified domain
         to: ['info@obsidianpeaks.com'],
         reply_to: email,
         subject: `Contact Form: ${name}`,
