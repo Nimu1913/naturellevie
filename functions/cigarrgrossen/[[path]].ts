@@ -48,16 +48,17 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   // Get content type
   const contentType = response.headers.get('content-type') || '';
   
-  // If we got HTML but expected an asset, the path was wrong
-  // Try both possible locations
+  // If we got HTML but expected an asset, try the alternative path
+  // (Initial fetch tried root, so fallback tries base path, or vice versa)
   if (isAssetRequest && contentType.includes('text/html')) {
-    // Try 1: Root path (most likely - assets are in dist root)
-    const rootUrl = `${cigarrgrossenUrl}${path}${url.search}`;
-    const rootResponse = await fetch(rootUrl);
-    const rootContentType = rootResponse.headers.get('content-type') || '';
+    // The initial fetch already tried root (targetPath = path)
+    // So try with /cigarrgrossen/ prefix
+    const altUrl = `${cigarrgrossenUrl}/cigarrgrossen${path}${url.search}`;
+    const altResponse = await fetch(altUrl);
+    const altContentType = altResponse.headers.get('content-type') || '';
     
-    if (!rootContentType.includes('text/html') && rootResponse.ok) {
-      const headers = new Headers(rootResponse.headers);
+    if (!altContentType.includes('text/html') && altResponse.ok) {
+      const headers = new Headers(altResponse.headers);
       if (url.pathname.endsWith('.css')) {
         headers.set('Content-Type', 'text/css; charset=utf-8');
       } else if (url.pathname.endsWith('.js') || url.pathname.endsWith('.mjs')) {
@@ -65,36 +66,19 @@ export async function onRequest({ request, next }: { request: Request; next: () 
       }
       headers.set('Access-Control-Allow-Origin', '*');
       
-      return new Response(rootResponse.body, {
-        status: rootResponse.status,
-        statusText: rootResponse.statusText,
+      return new Response(altResponse.body, {
+        status: altResponse.status,
+        statusText: altResponse.statusText,
         headers: headers,
       });
     }
     
-    // Try 2: With /cigarrgrossen/ prefix (if assets are under base path)
-    const baseUrl = `${cigarrgrossenUrl}/cigarrgrossen${path}${url.search}`;
-    const baseResponse = await fetch(baseUrl);
-    const baseContentType = baseResponse.headers.get('content-type') || '';
-    
-    if (!baseContentType.includes('text/html') && baseResponse.ok) {
-      const headers = new Headers(baseResponse.headers);
-      if (url.pathname.endsWith('.css')) {
-        headers.set('Content-Type', 'text/css; charset=utf-8');
-      } else if (url.pathname.endsWith('.js') || url.pathname.endsWith('.mjs')) {
-        headers.set('Content-Type', 'application/javascript; charset=utf-8');
-      }
-      headers.set('Access-Control-Allow-Origin', '*');
-      
-      return new Response(baseResponse.body, {
-        status: baseResponse.status,
-        statusText: baseResponse.statusText,
-        headers: headers,
-      });
-    }
-    
-    // If both failed, return 404
-    return new Response('Asset not found', { status: 404 });
+    // If still HTML, return 404 with helpful error
+    console.error(`Asset not found at either path. Requested: ${url.pathname}, tried: ${targetUrl} and ${altUrl}`);
+    return new Response('Asset not found', { 
+      status: 404,
+      headers: { 'Content-Type': 'text/plain' }
+    });
   }
   
   // For non-HTML assets (CSS, JS, images, etc.), return as-is with correct headers
