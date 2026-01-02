@@ -174,12 +174,14 @@ function App() {
           </div>
         </div>
 
-        {/* Smooth transition gradient at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-obsidian-900/80 to-obsidian-900 z-10 pointer-events-none" />
+        {/* Enhanced smooth transition gradient at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent via-obsidian-900/40 via-obsidian-900/70 to-obsidian-900 z-10 pointer-events-none" />
+        {/* Additional fade layer for smoother transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-b from-transparent via-obsidian-900/20 to-obsidian-900/90 z-10 pointer-events-none" />
       </section>
 
       {/* Services Section */}
-      <section id="services" className="relative py-32 px-6 -mt-32 pt-40">
+      <section id="services" className="relative py-32 px-6 -mt-48 pt-56">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <span className="font-mono text-steel-500 text-sm uppercase tracking-widest">What We Do</span>
