@@ -10,52 +10,50 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   // Get the response from Cloudflare Pages static file serving
   const response = await next();
   
-  // If we got HTML for an asset request, the file wasn't found
+  // Get content type
   const contentType = response.headers.get('content-type') || '';
-  if (isAsset && contentType.includes('text/html')) {
-    // Log for debugging
-    console.error(`Asset not found: ${path}, got HTML instead`);
-    return new Response(`Asset not found: ${path}`, { 
-      status: 404,
-      headers: { 
-        'Content-Type': 'text/plain',
-        'X-Debug-Path': path,
+  
+  // If it's an asset request
+  if (isAsset) {
+    // If we got HTML, the file wasn't found (404 fallback)
+    if (contentType.includes('text/html')) {
+      console.error(`Asset not found: ${path}, got HTML instead`);
+      return new Response(`Asset not found: ${path}`, { 
+        status: 404,
+        headers: { 
+          'Content-Type': 'text/plain',
+          'X-Debug-Path': path,
+        }
+      });
+    }
+    
+    // If we got the file successfully, ensure correct MIME type
+    if (response.status === 200) {
+      const headers = new Headers(response.headers);
+      
+      // Force correct MIME types based on file extension
+      if (path.endsWith('.css')) {
+        headers.set('Content-Type', 'text/css; charset=utf-8');
+      } else if (path.endsWith('.js') || path.endsWith('.mjs')) {
+        headers.set('Content-Type', 'application/javascript; charset=utf-8');
+      } else if (path.endsWith('.json')) {
+        headers.set('Content-Type', 'application/json; charset=utf-8');
+      } else if (path.endsWith('.wasm')) {
+        headers.set('Content-Type', 'application/wasm');
       }
-    });
-  }
-  
-  // If it's an asset, ensure correct MIME type
-  if (isAsset && response.status === 200) {
-    const headers = new Headers(response.headers);
-    
-    // Set correct MIME types based on file extension
-    if (path.endsWith('.css')) {
-      headers.set('Content-Type', 'text/css; charset=utf-8');
-    } else if (path.endsWith('.js') || path.endsWith('.mjs')) {
-      headers.set('Content-Type', 'application/javascript; charset=utf-8');
-    } else if (path.endsWith('.json')) {
-      headers.set('Content-Type', 'application/json; charset=utf-8');
-    } else if (path.endsWith('.wasm')) {
-      headers.set('Content-Type', 'application/wasm');
-    }
-    
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: headers,
-    });
-  }
-  
-  // For HTML pages, ensure we're serving the right file
-  if (!isAsset && path.startsWith('/cigarrgrossen')) {
-    // If we got a 404 or wrong content, try to serve index.html
-    if (response.status === 404 || (contentType.includes('text/html') && !path.endsWith('.html'))) {
-      // Let the redirects handle it
-      return response;
+      
+      // Add cache headers to prevent stale content
+      headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+      
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: headers,
+      });
     }
   }
   
-  // For all other requests, return as-is
+  // For HTML pages, return as-is
   return response;
 }
 
