@@ -5,9 +5,8 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   // Extract the path after /cigarrgrossen
   const path = url.pathname.replace('/cigarrgrossen', '') || '/';
   
-  // Replace with your Cigarrgrossen Pages deployment URL
-  // You'll get this after deploying Cigarrgrossen to Cloudflare Pages
-  const cigarrgrossenUrl = 'https://cigarrgrossen.pages.dev'; // Update this after deployment
+  // Cigarrgrossen Pages deployment URL
+  const cigarrgrossenUrl = 'https://cigarrgrossen.pages.dev';
   
   // Build the target URL
   const targetUrl = `${cigarrgrossenUrl}${path}${url.search}`;
