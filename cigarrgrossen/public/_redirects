@@ -1,4 +1,0 @@
-# Cigarrgrossen redirects - assets first, then SPA fallback
-/assets/*    /assets/:splat   200
-/*    /index.html   200
-
