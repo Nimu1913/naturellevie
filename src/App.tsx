@@ -180,6 +180,14 @@ function App() {
           </div>
         </div>
 
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20">
+          <span className="text-xs font-mono text-steel-600 uppercase tracking-widest">Scroll</span>
+          <svg className="w-5 h-5 text-steel-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+
         {/* Enhanced smooth transition gradient at bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent via-obsidian-900/50 to-obsidian-900 z-10 pointer-events-none" />
         {/* Additional fade layer for smoother transition */}
