@@ -42,7 +42,7 @@ export const translations = {
     tagline: "Tech ventures, performance ads, and websites that move businesses forward.",
     taglineEnd: "Create and inspire - with discipline.",
     seeWhatWeDo: "Se vad vi gör",
-    startProject: "Starta ett projekt",
+    startProject: "Starta projekt",
     whatWeDo: "Vad vi gör",
     threePillars: "Tre pelare för",
     growth: "Tillväxt",
