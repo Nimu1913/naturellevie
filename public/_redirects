@@ -1,7 +1,12 @@
+# Cigarrgrossen assets - must come BEFORE the catch-all
+/cigarrgrossen/assets/*    /cigarrgrossen/assets/:splat   200
+
+# Cigarrgrossen SPA fallback
+/cigarrgrossen/*    /cigarrgrossen/index.html   200
+
+# Obsidian Peaks assets - must come BEFORE the catch-all
+/assets/*    /assets/:splat   200
+
 # Obsidian Peaks SPA fallback
 /*    /index.html   200
-
-# Cigarrgrossen - serve assets first, then SPA fallback
-/cigarrgrossen/assets/*    /cigarrgrossen/assets/:splat   200
-/cigarrgrossen/*    /cigarrgrossen/index.html   200
 
