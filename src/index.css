@@ -1,0 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: #050508;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a10;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #4a6080 0%, #6b8cad 100%);
+  border-radius: 3px;
+}
+
+/* Gradient text - steel blue obsidian style */
+.gradient-text {
+  background: linear-gradient(135deg, #9eb4d4 0%, #6b8cad 40%, #4a6080 70%, #8fa8c4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtle crystal shimmer */
+.shimmer-text {
+  background: linear-gradient(90deg, #6b8cad 0%, #8fa8c4 25%, #c5d3e8 50%, #8fa8c4 75%, #6b8cad 100%);
+  background-size: 400% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+/* Grid background - subtle */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(107, 140, 173, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107, 140, 173, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Noise overlay */
+.noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Obsidian button - primary */
+.btn-obsidian {
+  position: relative;
+  padding: 16px 36px;
+  background: linear-gradient(135deg, #101018 0%, #181820 50%, #101018 100%);
+  border: 1px solid rgba(107, 140, 173, 0.3);
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #c5d3e8;
+  transition: all 0.4s ease;
+  overflow: hidden;
+}
+
+.btn-obsidian::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(107, 140, 173, 0.1) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.btn-obsidian::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(143, 168, 196, 0.15), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn-obsidian:hover {
+  border-color: rgba(107, 140, 173, 0.6);
+  box-shadow: 
+    0 0 30px rgba(107, 140, 173, 0.15),
+    inset 0 1px 0 rgba(143, 168, 196, 0.1);
+  transform: translateY(-2px);
+}
+
+.btn-obsidian:hover::before {
+  opacity: 1;
+}
+
+.btn-obsidian:hover::after {
+  left: 100%;
+}
+
+.btn-obsidian span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Obsidian button - outline */
+.btn-obsidian-outline {
+  padding: 16px 36px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  border: 1px solid rgba(107, 140, 173, 0.25);
+  color: #9eb4d4;
+  background: transparent;
+  transition: all 0.4s ease;
+}
+
+.btn-obsidian-outline:hover {
+  border-color: rgba(107, 140, 173, 0.5);
+  background: rgba(107, 140, 173, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Service card - obsidian crystal style */
+.obsidian-card {
+  background: linear-gradient(145deg, rgba(16, 16, 24, 0.95) 0%, rgba(10, 10, 16, 0.98) 100%);
+  border: 1px solid rgba(107, 140, 173, 0.15);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.obsidian-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(143, 168, 196, 0.3), transparent);
+}
+
+.obsidian-card:hover {
+  border-color: rgba(107, 140, 173, 0.35);
+  transform: translateY(-6px);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(107, 140, 173, 0.08);
+}
+
+/* Animated border - obsidian style */
+.crystal-border {
+  position: relative;
+  background: linear-gradient(135deg, #0a0a10 0%, #101018 100%);
+  border-radius: 16px;
+}
+
+.crystal-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, #4a6080, #6b8cad, #8fa8c4, #6b8cad, #4a6080);
+  background-size: 300% 300%;
+  animation: gradient 6s ease infinite;
+  border-radius: 17px;
+  z-index: -1;
+  opacity: 0.4;
+}
+
+/* Stagger animations */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Icon container */
+.icon-container {
+  position: relative;
+  background: transparent;
+}
+
+/* Icon edge fade effect - removes black background */
+.icon-soft-edge {
+  position: relative;
+  mask-image: radial-gradient(ellipse 75% 75% at center, black 50%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 75% at center, black 50%, transparent 100%);
+  filter: 
+    brightness(1.2) 
+    contrast(1.1)
+    drop-shadow(0 0 3px rgba(107, 140, 173, 0.4)) 
+    drop-shadow(0 0 8px rgba(107, 140, 173, 0.2));
+  mix-blend-mode: screen;
+  background: transparent;
+}
+
+.icon-soft-edge::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(107, 140, 173, 0.25), rgba(143, 168, 196, 0.15), rgba(107, 140, 173, 0.25));
+  opacity: 0.8;
+  z-index: -1;
+  mask-image: radial-gradient(ellipse 85% 85% at center, transparent 60%, black 100%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 85% at center, transparent 60%, black 100%);
+}
+
+/* Remove white background from logos */
+.logo-remove-bg {
+  mix-blend-mode: screen;
+  filter: brightness(1.1) contrast(1.1);
+}
