@@ -4,25 +4,29 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   const url = new URL(request.url);
   const path = url.pathname;
   
-  // Get the response from Cloudflare Pages static file serving
-  const response = await next();
-  
   // Check if this is an asset file request
   const isAsset = /\.(js|mjs|css|json|wasm|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|webp)$/i.test(path);
   
-  // If it's an asset and we got a 200 response, ensure correct MIME type
+  // Get the response from Cloudflare Pages static file serving
+  const response = await next();
+  
+  // If we got HTML for an asset request, the file wasn't found
+  const contentType = response.headers.get('content-type') || '';
+  if (isAsset && contentType.includes('text/html')) {
+    // Log for debugging
+    console.error(`Asset not found: ${path}, got HTML instead`);
+    return new Response(`Asset not found: ${path}`, { 
+      status: 404,
+      headers: { 
+        'Content-Type': 'text/plain',
+        'X-Debug-Path': path,
+      }
+    });
+  }
+  
+  // If it's an asset, ensure correct MIME type
   if (isAsset && response.status === 200) {
     const headers = new Headers(response.headers);
-    const contentType = headers.get('content-type');
-    
-    // Only override if we got HTML (which means the file wasn't found and we got the fallback)
-    if (contentType && contentType.includes('text/html')) {
-      // File not found - return 404
-      return new Response('Asset not found', { 
-        status: 404,
-        headers: { 'Content-Type': 'text/plain' }
-      });
-    }
     
     // Set correct MIME types based on file extension
     if (path.endsWith('.css')) {
@@ -42,7 +46,16 @@ export async function onRequest({ request, next }: { request: Request; next: () 
     });
   }
   
-  // For all other requests (HTML, etc.), return as-is
+  // For HTML pages, ensure we're serving the right file
+  if (!isAsset && path.startsWith('/cigarrgrossen')) {
+    // If we got a 404 or wrong content, try to serve index.html
+    if (response.status === 404 || (contentType.includes('text/html') && !path.endsWith('.html'))) {
+      // Let the redirects handle it
+      return response;
+    }
+  }
+  
+  // For all other requests, return as-is
   return response;
 }
 
