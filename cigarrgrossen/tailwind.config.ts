@@ -105,8 +105,8 @@ export default {
           to: { opacity: "1", transform: "translateX(0)" },
         },
         "marquee": {
-          from: { transform: "translateX(0)" },
-          to: { transform: "translateX(-50%)" },
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
         },
       },
       animation: {

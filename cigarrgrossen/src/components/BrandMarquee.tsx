@@ -27,7 +27,7 @@ export const BrandMarquee = () => {
 
   return (
     <div className="w-full overflow-hidden py-4">
-      <div className="flex w-max animate-marquee">
+      <div className="flex w-max animate-marquee whitespace-nowrap">
         {/* First set */}
         {brands.map((brand, index) => (
           <BrandItem key={`a-${index}`} brand={brand} />
@@ -40,7 +40,7 @@ export const BrandMarquee = () => {
         {brands.map((brand, index) => (
           <BrandItem key={`c-${index}`} brand={brand} />
         ))}
-        {/* Fourth set */}
+        {/* Fourth set - ensures seamless loop */}
         {brands.map((brand, index) => (
           <BrandItem key={`d-${index}`} brand={brand} />
         ))}
