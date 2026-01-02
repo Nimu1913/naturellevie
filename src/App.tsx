@@ -9,6 +9,7 @@ import logoBMW from './assets/bmw.png'
 import logoFord from './assets/ford.png'
 import logoViaplay from './assets/viaplay.webp'
 import logoEinfache from './assets/einfache.svg'
+import heroVideo from './assets/14fb63b4-9d29-4d17-8906-12a8e08117c4-video.mp4'
 
 function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -125,8 +126,22 @@ function App() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20">
-        <div className="max-w-5xl mx-auto text-center">
+      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20 overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-obsidian-900/60 z-0" />
+        
+        <div className="max-w-5xl mx-auto text-center relative z-10">
           {/* Floating orbs - subtle obsidian glow */}
           <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-crystal-blue/5 rounded-full blur-[120px] animate-float" />
           <div className="absolute bottom-1/3 right-1/4 w-56 h-56 bg-steel-500/5 rounded-full blur-[100px] animate-float" style={{ animationDelay: '3s' }} />
