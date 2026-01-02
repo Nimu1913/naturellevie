@@ -160,7 +160,7 @@ function App() {
             
             <p className="text-xl md:text-2xl text-steel-400 max-w-2xl mx-auto mb-12 font-light">
               Tech ventures, performance ads, and websites that move businesses forward. 
-              <span className="text-steel-200"> No fluff. Just results.</span>
+              <span className="text-steel-200"> create and inspire with discipline</span>
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
