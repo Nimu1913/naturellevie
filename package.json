@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && cd cigarrgrossen && npm install && npm run build",
+    "build:cigarrgrossen": "cd cigarrgrossen && npm run build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
