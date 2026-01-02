@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from './LanguageContext'
+import { LanguageSwitcher } from './components/LanguageSwitcher'
 import logoSmall from './assets/logo-small.png'
 import logoBig from './assets/logo-big.png'
 import iconRocket from './assets/icon-rocket.png'
@@ -12,6 +14,7 @@ import logoEinfache from './assets/einfache.svg'
 import heroVideo from './assets/14fb63b4-9d29-4d17-8906-12a8e08117c4-video.mp4'
 
 function App() {
+  const { t } = useLanguage()
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isLoaded, setIsLoaded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -80,18 +83,18 @@ function App() {
   const services = [
     {
       icon: iconRocket,
-      title: 'Venture Building',
-      description: 'From idea to launch. We co-build startups and digital products that create real value.',
+      title: t.ventureBuilding,
+      description: t.ventureDesc,
     },
     {
       icon: iconChart,
-      title: 'Growth & Ads',
-      description: 'Performance marketing that scales. Paid media, funnels, and conversion optimization.',
+      title: t.growthAds,
+      description: t.growthDesc,
     },
     {
       icon: iconGears,
-      title: 'Tech Consulting',
-      description: 'Strategic guidance on digital transformation, web systems, and technology decisions.',
+      title: t.techConsulting,
+      description: t.techDesc,
     }
   ]
 
@@ -116,12 +119,15 @@ function App() {
           <div className="flex items-center gap-4">
             <img src={logoSmall} alt="Obsidian Peaks" className="h-12 w-auto" />
           </div>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="btn-obsidian-outline text-sm"
-          >
-            Get in Touch
-          </button>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="btn-obsidian-outline text-sm"
+            >
+              {t.getInTouch}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -165,10 +171,10 @@ function App() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="#services" className="btn-obsidian">
-                <span>See What We Do</span>
+                <span>{t.seeWhatWeDo}</span>
               </a>
               <a href="#contact" className="btn-obsidian-outline">
-                Start a Project
+                {t.startProject}
               </a>
             </div>
           </div>
@@ -184,9 +190,9 @@ function App() {
       <section id="services" className="relative py-32 px-6 -mt-48 pt-56">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <span className="font-mono text-steel-500 text-sm uppercase tracking-widest">What We Do</span>
+            <span className="font-mono text-steel-500 text-sm uppercase tracking-widest">{t.whatWeDo}</span>
             <h2 className="font-display text-4xl md:text-5xl font-bold mt-4 text-steel-100">
-              Three Pillars of <span className="gradient-text">Growth</span>
+              {t.threePillars} <span className="gradient-text">{t.growth}</span>
             </h2>
           </div>
 
@@ -214,10 +220,10 @@ function App() {
           <div className="crystal-border p-8 md:p-12">
             <div className="text-center">
               <p className="text-steel-400 text-xl md:text-2xl mb-6">
-                Experience across{' '}
-                <span className="gradient-text font-semibold">tech</span>,{' '}
-                <span className="gradient-text font-semibold">automotive</span>, and{' '}
-                <span className="gradient-text font-semibold">media</span>
+                {t.experience}{' '}
+                <span className="gradient-text font-semibold">{t.tech}</span>,{' '}
+                <span className="gradient-text font-semibold">{t.automotive}</span>, {t.and}{' '}
+                <span className="gradient-text font-semibold">{t.media}</span>
               </p>
               <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 mt-8">
                 {[
@@ -308,13 +314,13 @@ function App() {
               </svg>
             </button>
 
-            <h3 className="font-display text-3xl font-bold mb-2 text-steel-100">Get in Touch</h3>
-            <p className="text-steel-400 mb-6">Send us a message and we'll get back to you soon.</p>
+            <h3 className="font-display text-3xl font-bold mb-2 text-steel-100">{t.getInTouch}</h3>
+            <p className="text-steel-400 mb-6">{t.sendMessage}</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-steel-300 mb-2">
-                  Name
+                  {t.name}
                 </label>
                 <input
                   type="text"
@@ -331,7 +337,7 @@ function App() {
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-steel-300 mb-2">
-                  Email
+                  {t.email}
                 </label>
                 <input
                   type="email"
@@ -348,7 +354,7 @@ function App() {
 
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-steel-300 mb-2">
-                  Message
+                  {t.message}
                 </label>
                 <textarea
                   id="message"
@@ -365,13 +371,13 @@ function App() {
 
               {submitStatus === 'success' && (
                 <div className="p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-sm">
-                  Message sent! We'll get back to you soon.
+                  {t.success}
                 </div>
               )}
 
               {submitStatus === 'error' && (
                 <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                  Something went wrong. Please try again or email us directly.
+                  {t.error}
                 </div>
               )}
 
@@ -381,7 +387,7 @@ function App() {
                   disabled={isSubmitting}
                   className="btn-obsidian flex-1"
                 >
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {isSubmitting ? t.sending : t.send}
                 </button>
                 <button
                   type="button"
@@ -389,7 +395,7 @@ function App() {
                   disabled={isSubmitting}
                   className="btn-obsidian-outline"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
               </div>
             </form>
