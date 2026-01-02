@@ -13,10 +13,12 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   // Cigarrgrossen Pages deployment URL
   const cigarrgrossenUrl = 'https://cigarrgrossen.pages.dev';
   
-  // Cigarrgrossen is built with base: '/cigarrgrossen/', so we need to prepend that
-  // Request: /cigarrgrossen/assets/file.css
-  // Target:  cigarrgrossen.pages.dev/cigarrgrossen/assets/file.css
-  const targetPath = path === '/' ? '/cigarrgrossen/' : `/cigarrgrossen${path}`;
+  // When Cigarrgrossen is deployed, files are at the root, not under /cigarrgrossen/
+  // The base: '/cigarrgrossen/' only affects how HTML references assets, not where they're served
+  // So /cigarrgrossen/assets/file.css should fetch from cigarrgrossen.pages.dev/assets/file.css
+  // But /cigarrgrossen/ (root) should fetch from cigarrgrossen.pages.dev/cigarrgrossen/ (for the HTML)
+  const isRoot = path === '/';
+  const targetPath = isRoot ? '/cigarrgrossen/' : path;
   const targetUrl = `${cigarrgrossenUrl}${targetPath}${url.search}`;
   
   // Fetch from the Cigarrgrossen deployment
