@@ -17,6 +17,5 @@ export default defineConfig({
   },
   build: {
     outDir: '../dist/cigarrgrossen',
-    emptyOutDir: false,
   },
 });
