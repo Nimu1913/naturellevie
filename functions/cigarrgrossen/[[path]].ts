@@ -13,9 +13,11 @@ export async function onRequest({ request, next }: { request: Request; next: () 
   // Cigarrgrossen Pages deployment URL
   const cigarrgrossenUrl = 'https://cigarrgrossen.pages.dev';
   
-  // Cigarrgrossen is built with base: '/cigarrgrossen/', so assets are at /cigarrgrossen/assets/...
-  // The path already includes /cigarrgrossen from the base, so we use it directly
-  const targetUrl = `${cigarrgrossenUrl}${path}${url.search}`;
+  // Cigarrgrossen is built with base: '/cigarrgrossen/', so we need to prepend that
+  // Request: /cigarrgrossen/assets/file.css
+  // Target:  cigarrgrossen.pages.dev/cigarrgrossen/assets/file.css
+  const targetPath = path === '/' ? '/cigarrgrossen/' : `/cigarrgrossen${path}`;
+  const targetUrl = `${cigarrgrossenUrl}${targetPath}${url.search}`;
   
   // Fetch from the Cigarrgrossen deployment
   const response = await fetch(targetUrl, {
