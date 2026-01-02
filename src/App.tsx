@@ -46,7 +46,12 @@ function App() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message')
+        console.error('API error:', {
+          status: response.status,
+          error: data.error,
+          details: data.details,
+        })
+        throw new Error(data.error || data.details || 'Failed to send message')
       }
 
       setSubmitStatus('success')
