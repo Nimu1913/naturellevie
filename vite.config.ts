@@ -8,4 +8,9 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
   },
+  server: {
+    headers: {
+      'Content-Type': 'application/javascript; charset=utf-8',
+    },
+  },
 })
