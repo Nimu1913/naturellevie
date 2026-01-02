@@ -213,7 +213,7 @@ function App() {
         <div className="max-w-5xl mx-auto">
           <div className="crystal-border p-8 md:p-12">
             <div className="text-center">
-              <p className="text-steel-400 text-lg mb-6">
+              <p className="text-steel-400 text-xl md:text-2xl mb-6">
                 Experience across{' '}
                 <span className="gradient-text font-semibold">tech</span>,{' '}
                 <span className="gradient-text font-semibold">automotive</span>, and{' '}
