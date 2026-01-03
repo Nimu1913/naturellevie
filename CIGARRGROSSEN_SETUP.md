@@ -40,3 +40,4 @@ After setup, visit:
 - `obsidianpeaks.com` → Obsidian Peaks site
 - `obsidianpeaks.com/cigarrgrossen` → Cigarrgrossen site
 
+

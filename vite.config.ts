@@ -9,8 +9,12 @@ export default defineConfig({
     assetsDir: 'assets',
   },
   server: {
-    headers: {
-      'Content-Type': 'application/javascript; charset=utf-8',
+    proxy: {
+      '/cigarrgrossen': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        // Don't rewrite - Cigarrgrossen expects /cigarrgrossen/ base path
+      },
     },
   },
 })

@@ -4,7 +4,7 @@ const trustPoints = [
   {
     icon: Building2,
     title: "Etablerat företag",
-    description: "Verksamma sedan 2008 med dokumenterad branscherfarenhet.",
+    description: "Verksamma sedan xxxx med dokumenterad branscherfarenhet.",
   },
   {
     icon: ShieldCheck,
@@ -46,7 +46,7 @@ export const Trust = () => {
               key={point.title}
               className="text-center p-6"
             >
-              <div className="w-16 h-16 mx-auto flex items-center justify-center bg-secondary text-brown-warm mb-5">
+              <div className="w-16 h-16 mx-auto flex items-center justify-center bg-secondary text-brown-warm mb-5 rounded-2xl">
                 <point.icon size={28} strokeWidth={1.5} />
               </div>
               <h3 className="font-serif text-lg font-semibold text-charcoal mb-2">
@@ -60,7 +60,7 @@ export const Trust = () => {
         </div>
 
         {/* CTA Block */}
-        <div className="bg-secondary p-10 lg:p-16 text-center">
+        <div className="bg-secondary p-10 lg:p-16 text-center rounded-2xl">
           <h3 className="font-serif text-2xl lg:text-3xl font-semibold text-charcoal mb-4">
             Redo att bli återförsäljare?
           </h3>

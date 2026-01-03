@@ -19,7 +19,7 @@ const features = [
   },
   {
     icon: MapPin,
-    title: "Täckning hela Sverige",
+    title: "Täckning över hela Sverige",
     description: "Leverans till alla återförsäljare i Sverige med anpassade fraktvillkor.",
   },
 ];

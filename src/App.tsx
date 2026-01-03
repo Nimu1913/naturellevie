@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from './LanguageContext'
 import { LanguageSwitcher } from './components/LanguageSwitcher'
+import { TypingAnimation } from './components/TypingAnimation'
 import logoSmall from './assets/logo-small.png'
 import logoBig from './assets/logo-big.png'
 import iconRocket from './assets/icon-rocket.png'
 import iconChart from './assets/icon-chart.png'
 import iconGears from './assets/icon-gears.png'
-import logoGoogle from './assets/google.png'
-import logoBMW from './assets/bmw.png'
-import logoFord from './assets/ford.png'
-import logoViaplay from './assets/viaplay.webp'
-import logoEinfache from './assets/einfache.svg'
 import heroVideo from './assets/14fb63b4-9d29-4d17-8906-12a8e08117c4-video.mp4'
 
 function App() {
@@ -158,15 +154,25 @@ function App() {
               <span className="text-sm font-mono text-steel-300">Available for new projects</span>
             </div>
             
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-steel-100">
-              We Build
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-4 text-steel-100">
+              {t.weBuild}
               <br />
-              <span className="gradient-text">Digital Futures</span>
+              <span className="gradient-text">{t.digitalFutures}</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-steel-400 max-w-2xl mx-auto mb-12 font-light">
-              Tech ventures, performance ads, and websites that move businesses forward. 
-              <span className="text-steel-200"> Create and inspire - with discipline.</span>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-steel-300 mb-6">
+              <span style={{ position: 'relative', display: 'inline-block' }}>
+                <TypingAnimation 
+                  phrases={t.supportingLines}
+                  typingSpeed={80}
+                  deletingSpeed={50}
+                  pauseDuration={1000}
+                />
+              </span>
+            </h2>
+            
+            <p className="text-lg md:text-xl text-steel-400 max-w-2xl mx-auto mb-12 font-light">
+              {t.tagline}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -226,19 +232,13 @@ function App() {
                 <span className="gradient-text font-semibold">{t.media}</span>
               </p>
               <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 mt-8">
-                {[
-                  { logo: logoGoogle, alt: 'Google', className: '' },
-                  { logo: logoBMW, alt: 'BMW', className: 'logo-remove-bg' },
-                  { logo: logoFord, alt: 'Ford', className: '' },
-                  { logo: logoViaplay, alt: 'Viaplay', className: '' },
-                  { logo: logoEinfache, alt: 'Einfache', className: '' },
-                ].map((company, index) => (
-                  <img 
+                {['Google', 'BMW', 'Ford', 'Viaplay', 'Einfache-Reifen.de'].map((company, index) => (
+                  <span 
                     key={index} 
-                    src={company.logo} 
-                    alt={company.alt} 
-                    className={`h-8 md:h-10 w-auto opacity-80 hover:opacity-100 transition-opacity ${company.className}`}
-                  />
+                    className="font-display text-steel-300 text-lg md:text-xl font-medium opacity-80 hover:opacity-100 transition-opacity"
+                  >
+                    {company}
+                  </span>
                 ))}
               </div>
             </div>

@@ -86,7 +86,7 @@ export const Footer = () => {
       <div className="border-t border-cream/10">
         <div className="container-premium py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-cream/50">
-            © 2024 Cigarrgrossen. Alla rättigheter förbehållna.
+            © 2026 Cigarrgrossen. Alla rättigheter förbehållna.
           </p>
           <div className="flex gap-6 text-sm text-cream/50">
             <a href="#" className="hover:text-cream/80 transition-colors duration-200">

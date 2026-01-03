@@ -61,3 +61,4 @@ After setting the environment variable, trigger a new deployment:
 - Check browser DevTools → Network → contact request → Response tab
 - Check Cloudflare Pages → Functions → Logs
 
+

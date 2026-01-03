@@ -24,12 +24,12 @@ export const Hero = () => {
 
             {/* Headline */}
             <h1 className="heading-display text-cream mb-6 opacity-0 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              Cigarrgrossen – trygg grossist för svenska återförsäljare
+              Cigarrgrossist för företag med globalt sortiment och pålitlig leverans
             </h1>
 
             {/* Subheading */}
             <p className="text-lg md:text-xl text-cream/80 font-light leading-relaxed mb-10 max-w-2xl opacity-0 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-              Vi levererar cigarrer och tobaksprodukter till handlare i hela Sverige med fokus på tillgänglighet, kvalitet och pålitlig logistik.
+              Vi levererar cigarrer och tobaksprodukter till handlare i hela Sverige med fokus på tillgänglighet, kvalitet och pålitlig leveranskedja.
             </p>
 
             {/* CTAs */}
