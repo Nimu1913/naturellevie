@@ -289,7 +289,7 @@ function App() {
           </div>
           
           <p className="text-steel-600 text-sm font-mono">
-            © {new Date().getFullYear()} Obsidian Peaks. Built different.
+            © {new Date().getFullYear()} Obsidian Peaks.
           </p>
         </div>
       </footer>
