@@ -128,7 +128,7 @@ function App() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20 overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20 overflow-hidden text-center">
         {/* Video Background */}
         <video
           autoPlay
@@ -143,24 +143,24 @@ function App() {
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-obsidian-900/60 z-0" />
         
-        <div className="max-w-5xl mx-auto text-center relative z-10">
+        <div className="max-w-5xl mx-auto text-center relative z-10 w-full">
           {/* Floating orbs - subtle obsidian glow */}
           <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-crystal-blue/5 rounded-full blur-[120px] animate-float" />
           <div className="absolute bottom-1/3 right-1/4 w-56 h-56 bg-steel-500/5 rounded-full blur-[100px] animate-float" style={{ animationDelay: '3s' }} />
           
-          <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} flex flex-col items-center w-full`}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-crystal-edge/30 bg-obsidian-800/50 mb-8">
               <span className="w-2 h-2 bg-steel-400 rounded-full animate-pulse" />
               <span className="text-sm font-mono text-steel-300">Available for new projects</span>
             </div>
             
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-4 text-steel-100">
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-4 text-steel-100 w-full" style={{ textAlign: 'center' }}>
               {t.weBuild}
               <br />
               <span className="gradient-text">{t.digitalFutures}</span>
             </h1>
             
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-steel-300 mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-steel-300 mb-6 w-full" style={{ textAlign: 'center' }}>
               <span style={{ position: 'relative', display: 'inline-block' }}>
                 <TypingAnimation 
                   phrases={t.supportingLines}
@@ -171,11 +171,11 @@ function App() {
               </span>
             </h2>
             
-            <p className="text-lg md:text-xl text-steel-400 max-w-2xl mx-auto mb-12 font-light">
+            <p className="text-lg md:text-xl text-steel-400 max-w-2xl mx-auto mb-12 font-light text-center">
               {t.tagline}
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a href="#services" className="btn-obsidian">
                 <span>{t.seeWhatWeDo}</span>
               </a>

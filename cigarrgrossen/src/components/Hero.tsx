@@ -18,22 +18,22 @@ export const Hero = () => {
       {/* Main Content */}
       <div className="relative z-10 flex-1 flex items-center pt-20 pb-8">
         <div className="container-premium">
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto text-center">
             {/* Decorative line */}
-            <div className="gold-line mb-8 animate-slide-in-left" />
+            <div className="gold-line mb-8 animate-slide-in-left mx-auto" />
 
             {/* Headline */}
-            <h1 className="heading-display text-cream mb-6 opacity-0 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <h1 className="heading-display text-cream mb-6 opacity-0 animate-fade-in text-center" style={{ animationDelay: "0.2s" }}>
               Cigarrgrossist för företag med globalt sortiment och pålitlig leverans
             </h1>
 
             {/* Subheading */}
-            <p className="text-lg md:text-xl text-cream/80 font-light leading-relaxed mb-10 max-w-2xl opacity-0 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            <p className="text-lg md:text-xl text-cream/80 font-light leading-relaxed mb-10 max-w-2xl mx-auto opacity-0 animate-fade-in text-center" style={{ animationDelay: "0.4s" }}>
               Vi levererar cigarrer och tobaksprodukter till handlare i hela Sverige med fokus på tillgänglighet, kvalitet och pålitlig leveranskedja.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-in" style={{ animationDelay: "0.6s" }}>
+            <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-in justify-center items-center" style={{ animationDelay: "0.6s" }}>
               <a
                 href="#kontakt"
                 className="bg-brown-warm text-cream px-8 py-4 font-semibold tracking-wide text-sm transition-all duration-300 hover:bg-brown-light inline-block text-center rounded-full"
