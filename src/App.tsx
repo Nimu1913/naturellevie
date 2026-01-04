@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { useLanguage } from './LanguageContext';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { ProductCard } from './components/ProductCard';
 import { products } from './data/products';
@@ -8,7 +7,6 @@ import logoSmall from './assets/logonaturellevie.svg';
 import heroVideo from './assets/75bd3b06-6c72-422e-9c8d-32efb70cb0e6-video.mp4';
 
 function App() {
-  const { t } = useLanguage();
   const { getTotalItems } = useCart();
 
   // Featured products for homepage

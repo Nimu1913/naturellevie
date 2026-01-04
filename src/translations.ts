@@ -3,7 +3,6 @@ export const translations = {
     // Navigation
     shop: "Shop",
     cart: "Cart",
-    checkout: "Checkout",
     
     // Homepage
     heroTitle: "Natural Home, Naturally Better",
@@ -77,7 +76,6 @@ export const translations = {
     // Navigation
     shop: "Butik",
     cart: "Varukorg",
-    checkout: "Kassa",
     
     // Homepage
     heroTitle: "Naturligt Hem, Naturligt Bättre",
