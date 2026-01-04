@@ -41,17 +41,17 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
     }
 
     // Fetch free/busy information from Google Calendar
-    // Use UTC for the full day to ensure we get all events
-    const timeMin = new Date(`${date}T00:00:00Z`).toISOString();
-    const timeMax = new Date(`${date}T23:59:59Z`).toISOString();
-
-    // Try both the calendar ID as-is and as an email format
-    // Appointment scheduling calendars might need email format
-    const calendarIdsToTry = [
-      calendarId,
-      `${calendarId}@group.calendar.google.com`,
-      calendarId.includes('@') ? calendarId : `${calendarId.split('_')[0]}@group.calendar.google.com`
-    ];
+    // Use Europe/Stockholm timezone to match the calendar
+    const timeZone = 'Europe/Stockholm';
+    
+    // Create date range for the full day in Stockholm timezone
+    // Convert Stockholm midnight to UTC
+    const stockholmMidnight = `${date}T00:00:00`;
+    const stockholmEndOfDay = `${date}T23:59:59`;
+    
+    // Helper to convert Stockholm time to UTC ISO
+    const timeMin = stockholmToUTC(stockholmMidnight);
+    const timeMax = stockholmToUTC(stockholmEndOfDay);
 
     const freeBusyResponse = await fetch(
       `https://www.googleapis.com/calendar/v3/freeBusy?key=${env.GOOGLE_CALENDAR_API_KEY}`,
@@ -63,7 +63,8 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
         body: JSON.stringify({
           timeMin,
           timeMax,
-          items: calendarIdsToTry.map(id => ({ id })),
+          timeZone: timeZone,
+          items: [{ id: calendarId }],
         }),
       }
     );
@@ -88,25 +89,12 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
 
     const freeBusyData = await freeBusyResponse.json();
     
-    // Log full response for debugging
+    // Log response for debugging
     console.log('Free/Busy API Response:', JSON.stringify(freeBusyData, null, 2));
-    console.log('Calendar IDs tried:', calendarIdsToTry);
+    console.log('Calendar ID used:', calendarId);
     console.log('Calendar keys in response:', Object.keys(freeBusyData.calendars || {}));
     
-    // Try to find busy slots from any of the calendar IDs we tried
-    let busySlots: Array<{ start: string; end: string }> = [];
-    for (const id of calendarIdsToTry) {
-      if (freeBusyData.calendars?.[id]?.busy) {
-        busySlots = freeBusyData.calendars[id].busy;
-        console.log(`Found busy slots using calendar ID: ${id}`);
-        break;
-      }
-    }
-    
-    if (busySlots.length === 0) {
-      // Try the original calendar ID as fallback
-      busySlots = freeBusyData.calendars?.[calendarId]?.busy || [];
-    }
+    const busySlots = freeBusyData.calendars?.[calendarId]?.busy || [];
 
     // Log busy slots for debugging
     console.log(`Found ${busySlots.length} busy slot(s) for date ${date}`);
@@ -159,10 +147,39 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
   }
 }
 
+// Helper to convert Stockholm time string (YYYY-MM-DDTHH:mm:ss) to UTC ISO string
+function stockholmToUTC(stockholmTime: string): string {
+  // Parse the date/time
+  const [datePart, timePart] = stockholmTime.split('T');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute, second = 0] = timePart.split(':').map(Number);
+  
+  // Create a date object assuming it's in Stockholm timezone
+  // We'll use a trick: create date in UTC, then adjust for Stockholm offset
+  const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+  
+  // Get Stockholm offset for this date (handles DST)
+  const offset = getStockholmOffsetMinutes(utcDate);
+  
+  // Adjust UTC date by subtracting the offset (Stockholm is ahead of UTC)
+  const adjustedDate = new Date(utcDate.getTime() - offset * 60000);
+  return adjustedDate.toISOString();
+}
+
+// Helper to get Stockholm timezone offset in minutes from UTC
+function getStockholmOffsetMinutes(date: Date): number {
+  // Stockholm is UTC+1 in winter (CET), UTC+2 in summer (CEST)
+  // DST: last Sunday in March to last Sunday in October
+  // For January (month 0), it's winter: UTC+1 = -60 minutes
+  const month = date.getUTCMonth(); // 0-11
+  const isDST = month >= 2 && month <= 9; // March (2) to October (9)
+  return isDST ? -120 : -60; // UTC+2 = -120 min, UTC+1 = -60 min
+}
+
 function generateTimeSlots(date: string, busySlots: Array<{ start: string; end: string }>) {
   const slots: Array<{ start: string; end: string; available: boolean }> = [];
-  const startHour = 9; // 9 AM in calendar's timezone (GMT+01 = 10 AM local, 9 AM UTC = 8 AM GMT+01)
-  const endHour = 18; // 6 PM in calendar's timezone (extend to 6 PM to match calendar view)
+  const startHour = 9; // 9 AM in Stockholm timezone
+  const endHour = 19; // 7 PM in Stockholm timezone (to cover 6:00pm slots)
   const slotDuration = 30; // 30 minutes
 
   // Convert busy slots to timestamps for easy comparison
@@ -172,12 +189,15 @@ function generateTimeSlots(date: string, busySlots: Array<{ start: string; end: 
     end: new Date(slot.end).getTime(),
   }));
 
-  // Generate slots in UTC
-  // Calendar shows GMT+01, so 9 AM UTC = 10 AM GMT+01, 5 PM UTC = 6 PM GMT+01
+  // Generate slots in Stockholm timezone, convert to UTC
   for (let hour = startHour; hour < endHour; hour++) {
     for (let minute = 0; minute < 60; minute += slotDuration) {
-      // Create UTC date for the slot (explicitly UTC with Z)
-      const slotStart = new Date(`${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00.000Z`);
+      // Create Stockholm time string
+      const stockholmTime = `${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+      
+      // Convert to UTC
+      const slotStartUTC = stockholmToUTC(stockholmTime);
+      const slotStart = new Date(slotStartUTC);
       const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000);
       
       // Check if slot overlaps with any busy time (all in UTC milliseconds)
