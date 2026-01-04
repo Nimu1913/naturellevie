@@ -1,7 +1,12 @@
+// Helper function for CORS JSON headers
+function corsJson() {
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  };
+}
+
 export async function onRequestGet({ request, env }: { request: Request; env: { GOOGLE_CALENDAR_API_KEY?: string; GOOGLE_CALENDAR_ID?: string } }) {
-  // Default to the provided calendar link ID if no calendar ID is set
-  // The link format is calendar.app.google/P2ZUYqNgPQnfZvtt7
-  // This typically maps to: P2ZUYqNgPQnfZvtt7@group.calendar.google.com
   try {
     const url = new URL(request.url);
     const date = url.searchParams.get('date');
@@ -12,16 +17,22 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
         JSON.stringify({ error: 'Date parameter is required' }),
         { 
           status: 400, 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          } 
+          headers: corsJson()
         }
       );
     }
 
-    // Default calendar ID - can be overridden by env variable
-    const calendarId = env.GOOGLE_CALENDAR_ID || 'AcZssZ0vdRutz7B1dwX05rIbShf_sxp4YE4dzvqt7PI6bZoDimXEHay0RWscO8yEclbV87_ScSbiZ_T3';
+    const calendarId = env.GOOGLE_CALENDAR_ID;
+
+    if (!calendarId) {
+      return new Response(
+        JSON.stringify({
+          error: "GOOGLE_CALENDAR_ID not configured",
+          details: "Set GOOGLE_CALENDAR_ID to your Calendar ID (looks like xxx@group.calendar.google.com or your email)."
+        }),
+        { status: 500, headers: corsJson() }
+      );
+    }
     
     // Check if Google Calendar API key is configured
     if (!env.GOOGLE_CALENDAR_API_KEY) {
@@ -32,10 +43,7 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
         }),
         { 
           status: 500, 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          } 
+          headers: corsJson()
         }
       );
     }
@@ -79,10 +87,7 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
         }),
         { 
           status: 502, 
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          } 
+          headers: corsJson()
         }
       );
     }
@@ -121,10 +126,7 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
       JSON.stringify({ timeSlots }),
       { 
         status: 200, 
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        } 
+        headers: corsJson()
       }
     );
   } catch (error) {
@@ -138,10 +140,7 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
       }),
       { 
         status: 500, 
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        } 
+        headers: corsJson()
       }
     );
   }
