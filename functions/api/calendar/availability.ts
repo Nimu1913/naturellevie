@@ -146,8 +146,8 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
       console.log('No busy slots found - all times may appear available');
     }
 
-    // Generate 30-minute time slots from 9 AM to 6 PM UTC (10 AM to 7 PM GMT+01)
-    const timeSlots = generateTimeSlots(date, busySlots);
+    // Generate time slots based on appointment windows
+    const timeSlots = generateTimeSlots(date, busySlots, TIME_ZONE);
     
     // Log generated slots summary
     const availableCount = timeSlots.filter(s => s.available).length;
@@ -179,41 +179,62 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
 }
 
 
-function generateTimeSlots(date: string, busySlots: Array<{ start: string; end: string }>) {
-  const slots: Array<{ start: string; end: string; available: boolean }> = [];
-  const startHour = 9; // 9 AM in Stockholm timezone
-  const endHour = 19; // 7 PM in Stockholm timezone (to cover 6:00pm slots)
-  const slotDuration = 30; // 30 minutes
+type BusySlot = { start: string; end: string };
+type Slot = { start: string; end: string; available: boolean };
 
-  // Convert busy slots to timestamps for easy comparison
-  // Google Calendar API returns times in UTC ISO format
-  const busyTimes = busySlots.map(slot => ({
-    start: new Date(slot.start).getTime(),
-    end: new Date(slot.end).getTime(),
+const APPOINTMENT_WINDOWS = [
+  // Mon-Fri lunchtime: 12:00, 12:30
+  { days: [1, 2, 3, 4, 5], start: "12:00", end: "13:00" },
+  // Mon-Fri late: 17:30, 18:00
+  { days: [1, 2, 3, 4, 5], start: "17:30", end: "18:30" },
+];
+
+function weekdayInTimeZone(date: string, timeZone: string): number {
+  // Returns 0=Sun..6=Sat for the given date in that timezone
+  const [y, m, d] = date.split("-").map(Number);
+  const noonUTC = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const wd = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" }).format(noonUTC);
+  return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(wd);
+}
+
+function generateTimeSlots(date: string, busySlots: BusySlot[], timeZone: string): Slot[] {
+  const slotMinutes = 30;
+  const slots: Slot[] = [];
+
+  const busyTimes = busySlots.map(b => ({
+    start: new Date(b.start).getTime(),
+    end: new Date(b.end).getTime(),
   }));
 
-  // Generate slots in Stockholm timezone, convert to UTC
-  for (let hour = startHour; hour < endHour; hour++) {
-    for (let minute = 0; minute < 60; minute += slotDuration) {
-      // Create Stockholm time string
-      const stockholmTime = `${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
-      
-      // Convert to UTC
-      const slotStartUTC = zonedLocalToUtcISO(stockholmTime, TIME_ZONE);
-      const slotStart = new Date(slotStartUTC);
-      const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000);
-      
-      // Check if slot overlaps with any busy time (all in UTC milliseconds)
-      const slotStartTime = slotStart.getTime();
-      const slotEndTime = slotEnd.getTime();
-      
-      const isBusy = busyTimes.some(busy => 
-        (slotStartTime >= busy.start && slotStartTime < busy.end) ||
-        (slotEndTime > busy.start && slotEndTime <= busy.end) ||
-        (slotStartTime <= busy.start && slotEndTime >= busy.end)
+  const wd = weekdayInTimeZone(date, timeZone);
+
+  const todaysWindows = APPOINTMENT_WINDOWS.filter(w => w.days.includes(wd));
+
+  for (const w of todaysWindows) {
+    const [sh, sm] = w.start.split(":").map(Number);
+    const [eh, em] = w.end.split(":").map(Number);
+
+    const startTotal = sh * 60 + sm;
+    const endTotal = eh * 60 + em;
+
+    for (let mins = startTotal; mins + slotMinutes <= endTotal; mins += slotMinutes) {
+      const hh = String(Math.floor(mins / 60)).padStart(2, "0");
+      const mm = String(mins % 60).padStart(2, "0");
+
+      const localStart = `${date}T${hh}:${mm}:00`;
+      const startUtcIso = zonedLocalToUtcISO(localStart, timeZone);
+      const slotStart = new Date(startUtcIso);
+      const slotEnd = new Date(slotStart.getTime() + slotMinutes * 60000);
+
+      const s = slotStart.getTime();
+      const e = slotEnd.getTime();
+
+      const isBusy = busyTimes.some(b =>
+        (s >= b.start && s < b.end) ||
+        (e > b.start && e <= b.end) ||
+        (s <= b.start && e >= b.end)
       );
 
-      // Return in UTC ISO format - frontend will convert to user's local timezone for display
       slots.push({
         start: slotStart.toISOString(),
         end: slotEnd.toISOString(),

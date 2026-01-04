@@ -48,12 +48,14 @@ export async function onRequestPost({ request, env }: { request: Request; env: {
     // Format the selected time
     const selectedTime = timeSlot.start 
       ? new Date(timeSlot.start).toLocaleString('en-US', {
+          timeZone: 'Europe/Stockholm',
           weekday: 'long',
           month: 'long',
           day: 'numeric',
           year: 'numeric',
           hour: 'numeric',
           minute: '2-digit',
+          timeZoneName: 'short',
         })
       : 'Not specified';
 
