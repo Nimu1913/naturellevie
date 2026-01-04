@@ -1,8 +1,48 @@
-// Helper function for CORS JSON headers
+const TIME_ZONE = "Europe/Stockholm";
+
+function getTimeZoneOffsetMs(date: Date, timeZone: string): number {
+  // Offset = (time interpreted in tz as UTC) - actual UTC time
+  const dtf = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = dtf.formatToParts(date);
+  const map: Record<string, string> = {};
+  for (const p of parts) if (p.type !== "literal") map[p.type] = p.value;
+
+  const asUTC = Date.UTC(
+    Number(map.year),
+    Number(map.month) - 1,
+    Number(map.day),
+    Number(map.hour),
+    Number(map.minute),
+    Number(map.second)
+  );
+
+  return asUTC - date.getTime();
+}
+
+// Convert "YYYY-MM-DDTHH:mm:ss" which is in TIME_ZONE into a UTC ISO string.
+function zonedLocalToUtcISO(localDateTime: string, timeZone: string): string {
+  const [d, t] = localDateTime.split("T");
+  const [y, m, day] = d.split("-").map(Number);
+  const [hh, mm, ss = "0"] = t.split(":");
+  const approx = new Date(Date.UTC(y, m - 1, day, Number(hh), Number(mm), Number(ss)));
+  const offset = getTimeZoneOffsetMs(approx, timeZone);
+  return new Date(approx.getTime() - offset).toISOString();
+}
+
 function corsJson() {
   return {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
   };
 }
 
@@ -50,16 +90,8 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
 
     // Fetch free/busy information from Google Calendar
     // Use Europe/Stockholm timezone to match the calendar
-    const timeZone = 'Europe/Stockholm';
-    
-    // Create date range for the full day in Stockholm timezone
-    // Convert Stockholm midnight to UTC
-    const stockholmMidnight = `${date}T00:00:00`;
-    const stockholmEndOfDay = `${date}T23:59:59`;
-    
-    // Helper to convert Stockholm time to UTC ISO
-    const timeMin = stockholmToUTC(stockholmMidnight);
-    const timeMax = stockholmToUTC(stockholmEndOfDay);
+    const timeMin = zonedLocalToUtcISO(`${date}T00:00:00`, TIME_ZONE);
+    const timeMax = zonedLocalToUtcISO(`${date}T23:59:59`, TIME_ZONE);
 
     const freeBusyResponse = await fetch(
       `https://www.googleapis.com/calendar/v3/freeBusy?key=${env.GOOGLE_CALENDAR_API_KEY}`,
@@ -71,7 +103,7 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
         body: JSON.stringify({
           timeMin,
           timeMax,
-          timeZone: timeZone,
+          timeZone: TIME_ZONE,
           items: [{ id: calendarId }],
         }),
       }
@@ -146,34 +178,6 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
   }
 }
 
-// Helper to convert Stockholm time string (YYYY-MM-DDTHH:mm:ss) to UTC ISO string
-function stockholmToUTC(stockholmTime: string): string {
-  // Parse the date/time
-  const [datePart, timePart] = stockholmTime.split('T');
-  const [year, month, day] = datePart.split('-').map(Number);
-  const [hour, minute, second = 0] = timePart.split(':').map(Number);
-  
-  // Create a date object assuming it's in Stockholm timezone
-  // We'll use a trick: create date in UTC, then adjust for Stockholm offset
-  const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
-  
-  // Get Stockholm offset for this date (handles DST)
-  const offset = getStockholmOffsetMinutes(utcDate);
-  
-  // Adjust UTC date by subtracting the offset (Stockholm is ahead of UTC)
-  const adjustedDate = new Date(utcDate.getTime() - offset * 60000);
-  return adjustedDate.toISOString();
-}
-
-// Helper to get Stockholm timezone offset in minutes from UTC
-function getStockholmOffsetMinutes(date: Date): number {
-  // Stockholm is UTC+1 in winter (CET), UTC+2 in summer (CEST)
-  // DST: last Sunday in March to last Sunday in October
-  // For January (month 0), it's winter: UTC+1 = -60 minutes
-  const month = date.getUTCMonth(); // 0-11
-  const isDST = month >= 2 && month <= 9; // March (2) to October (9)
-  return isDST ? -120 : -60; // UTC+2 = -120 min, UTC+1 = -60 min
-}
 
 function generateTimeSlots(date: string, busySlots: Array<{ start: string; end: string }>) {
   const slots: Array<{ start: string; end: string; available: boolean }> = [];
@@ -195,7 +199,7 @@ function generateTimeSlots(date: string, busySlots: Array<{ start: string; end: 
       const stockholmTime = `${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
       
       // Convert to UTC
-      const slotStartUTC = stockholmToUTC(stockholmTime);
+      const slotStartUTC = zonedLocalToUtcISO(stockholmTime, TIME_ZONE);
       const slotStart = new Date(slotStartUTC);
       const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000);
       
