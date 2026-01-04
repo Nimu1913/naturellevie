@@ -79,18 +79,34 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
     }
 
     const freeBusyData = await freeBusyResponse.json();
+    
+    // Log full response for debugging
+    console.log('Free/Busy API Response:', JSON.stringify(freeBusyData, null, 2));
+    console.log('Calendar ID used:', calendarId);
+    console.log('Calendar keys in response:', Object.keys(freeBusyData.calendars || {}));
+    
     const busySlots = freeBusyData.calendars[calendarId]?.busy || [];
 
     // Log busy slots for debugging
+    console.log(`Found ${busySlots.length} busy slot(s) for date ${date}`);
     if (busySlots.length > 0) {
-      console.log('Busy slots found:', busySlots.map(slot => ({
+      console.log('Busy slots:', busySlots.map(slot => ({
         start: new Date(slot.start).toISOString(),
         end: new Date(slot.end).toISOString(),
+        startLocal: new Date(slot.start).toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }),
+        endLocal: new Date(slot.end).toLocaleString('en-US', { timeZone: 'Europe/Stockholm' }),
       })));
+    } else {
+      console.log('No busy slots found - all times may appear available');
     }
 
     // Generate 30-minute time slots from 9 AM to 6 PM UTC (10 AM to 7 PM GMT+01)
     const timeSlots = generateTimeSlots(date, busySlots);
+    
+    // Log generated slots summary
+    const availableCount = timeSlots.filter(s => s.available).length;
+    const unavailableCount = timeSlots.filter(s => !s.available).length;
+    console.log(`Generated ${timeSlots.length} slots: ${availableCount} available, ${unavailableCount} unavailable`);
 
     return new Response(
       JSON.stringify({ timeSlots }),
