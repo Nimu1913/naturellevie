@@ -19,20 +19,43 @@ export const TimeSlotPicker = ({ packageName, onTimeSelect }: TimeSlotPickerProp
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [weekGroups, setWeekGroups] = useState<Array<{ label: string; dates: string[] }>>([]);
 
-  // Generate next 14 days
+  // Generate this week and next week grouped by week
   useEffect(() => {
-    const dates: string[] = [];
     const today = new Date();
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      dates.push(date.toISOString().split('T')[0]);
+    const groups: Array<{ label: string; dates: string[] }> = [];
+    
+    // Get the start of this week (Monday)
+    const thisMonday = new Date(today);
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Days to go back to Monday
+    thisMonday.setDate(today.getDate() - daysToMonday);
+    thisMonday.setHours(0, 0, 0, 0);
+    
+    // Generate dates for this week (Mon-Fri)
+    const thisWeekDates: string[] = [];
+    for (let i = 0; i < 5; i++) {
+      const date = new Date(thisMonday);
+      date.setDate(thisMonday.getDate() + i);
+      thisWeekDates.push(date.toISOString().split('T')[0]);
     }
-    setAvailableDates(dates);
-    if (dates.length > 0) {
-      setSelectedDate(dates[0]);
+    groups.push({ label: 'This week', dates: thisWeekDates });
+    
+    // Generate dates for next week (Mon-Fri)
+    const nextWeekDates: string[] = [];
+    const nextMonday = new Date(thisMonday);
+    nextMonday.setDate(thisMonday.getDate() + 7);
+    for (let i = 0; i < 5; i++) {
+      const date = new Date(nextMonday);
+      date.setDate(nextMonday.getDate() + i);
+      nextWeekDates.push(date.toISOString().split('T')[0]);
+    }
+    groups.push({ label: 'Next week', dates: nextWeekDates });
+    
+    setWeekGroups(groups);
+    if (thisWeekDates.length > 0) {
+      setSelectedDate(thisWeekDates[0]);
     }
   }, []);
 
@@ -114,19 +137,28 @@ export const TimeSlotPicker = ({ packageName, onTimeSelect }: TimeSlotPickerProp
         <h3 className="text-sm font-semibold text-steel-300 mb-4 uppercase tracking-wider">
           {t.bookingSelectDate || 'Select Date'}
         </h3>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-crystal-edge/20 scrollbar-track-transparent">
-          {availableDates.map((date) => (
-            <button
-              key={date}
-              onClick={() => setSelectedDate(date)}
-              className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 ${
-                selectedDate === date
-                  ? 'bg-crystal-blue/20 text-crystal-blue border border-crystal-blue/40'
-                  : 'bg-obsidian-800/50 text-steel-400 border border-crystal-edge/10 hover:border-crystal-edge/30 hover:text-steel-300'
-              }`}
-            >
-              {formatDate(date)}
-            </button>
+        <div className="grid grid-cols-2 gap-6">
+          {weekGroups.map((group, groupIndex) => (
+            <div key={groupIndex}>
+              <h4 className="text-xs font-medium text-steel-400 mb-3 uppercase tracking-wider">
+                {group.label}
+              </h4>
+              <div className="flex flex-col gap-2">
+                {group.dates.map((date) => (
+                  <button
+                    key={date}
+                    onClick={() => setSelectedDate(date)}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm text-left transition-all duration-200 ${
+                      selectedDate === date
+                        ? 'bg-crystal-blue/20 text-crystal-blue border border-crystal-blue/40'
+                        : 'bg-obsidian-800/50 text-steel-400 border border-crystal-edge/10 hover:border-crystal-edge/30 hover:text-steel-300'
+                    }`}
+                  >
+                    {formatDate(date)}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </div>
