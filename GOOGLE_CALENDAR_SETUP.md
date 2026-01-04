@@ -24,9 +24,9 @@ The booking page integrates with Google Calendar to show your available time slo
    - (Optional) Restrict the API key to "Google Calendar API" for security
 
 4. **Get Your Calendar ID**
-   - Your calendar ID: `AcZssZ0vdRutz7B1dwX05rIbShf_sxp4YE4dzvqt7PI6bZoDimXEHay0RWscO8yEclbV87_ScSbiZ_T3`
-   - This is already set as the default in the code
-   - To override, set `GOOGLE_CALENDAR_ID` environment variable in Cloudflare Pages
+   - Your calendar ID: `infoobsidianpeaks@gmail.com`
+   - **Required:** Set `GOOGLE_CALENDAR_ID` environment variable in Cloudflare Pages to this value
+   - Go to Cloudflare Pages → Settings → Environment Variables → Add `GOOGLE_CALENDAR_ID` = `infoobsidianpeaks@gmail.com`
 
 ### 2. Cloudflare Pages Environment Variables
 
@@ -38,7 +38,7 @@ Add these environment variables in Cloudflare Pages:
 
 ```
 GOOGLE_CALENDAR_API_KEY=your_api_key_here
-GOOGLE_CALENDAR_ID=your_calendar_id_here
+GOOGLE_CALENDAR_ID=infoobsidianpeaks@gmail.com
 ```
 
 ### 3. How It Works
