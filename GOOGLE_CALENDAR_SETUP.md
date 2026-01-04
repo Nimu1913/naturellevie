@@ -24,8 +24,7 @@ The booking page integrates with Google Calendar to show your available time slo
    - (Optional) Restrict the API key to "Google Calendar API" for security
 
 4. **Get Your Calendar ID**
-   - Your appointment scheduling link: https://calendar.app.google/P2ZUYqNgPQnfZvtt7
-   - Your calendar ID: `07hdposfkpoee6qag83r3itrf2_aW5mb29ic2lkaWFucGVha3NAZ21haWwuY29t`
+   - Your calendar ID: `AcZssZ0vdRutz7B1dwX05rIbShf_sxp4YE4dzvqt7PI6bZoDimXEHay0RWscO8yEclbV87_ScSbiZ_T3`
    - This is already set as the default in the code
    - To override, set `GOOGLE_CALENDAR_ID` environment variable in Cloudflare Pages
 
