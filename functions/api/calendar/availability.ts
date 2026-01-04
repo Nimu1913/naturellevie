@@ -21,7 +21,7 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
     }
 
     // Default calendar ID - can be overridden by env variable
-    const calendarId = env.GOOGLE_CALENDAR_ID || '07hdposfkpoee6qag83r3itrf2_aW5mb29ic2lkaWFucGVha3NAZ21haWwuY29t';
+    const calendarId = env.GOOGLE_CALENDAR_ID || 'AcZssZ0vdRutz7B1dwX05rIbShf_sxp4YE4dzvqt7PI6bZoDimXEHay0RWscO8yEclbV87_ScSbiZ_T3';
     
     // Check if Google Calendar API key is configured
     if (!env.GOOGLE_CALENDAR_API_KEY) {
