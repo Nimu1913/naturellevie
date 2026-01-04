@@ -41,6 +41,7 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
     }
 
     // Fetch free/busy information from Google Calendar
+    // Use UTC for the full day to ensure we get all events
     const timeMin = new Date(`${date}T00:00:00Z`).toISOString();
     const timeMax = new Date(`${date}T23:59:59Z`).toISOString();
 
@@ -80,7 +81,15 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
     const freeBusyData = await freeBusyResponse.json();
     const busySlots = freeBusyData.calendars[calendarId]?.busy || [];
 
-    // Generate 30-minute time slots from 9 AM to 5 PM
+    // Log busy slots for debugging
+    if (busySlots.length > 0) {
+      console.log('Busy slots found:', busySlots.map(slot => ({
+        start: new Date(slot.start).toISOString(),
+        end: new Date(slot.end).toISOString(),
+      })));
+    }
+
+    // Generate 30-minute time slots from 9 AM to 6 PM UTC (10 AM to 7 PM GMT+01)
     const timeSlots = generateTimeSlots(date, busySlots);
 
     return new Response(
@@ -115,22 +124,26 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
 
 function generateTimeSlots(date: string, busySlots: Array<{ start: string; end: string }>) {
   const slots: Array<{ start: string; end: string; available: boolean }> = [];
-  const startHour = 9; // 9 AM
-  const endHour = 17; // 5 PM
+  const startHour = 9; // 9 AM in calendar's timezone (GMT+01 = 10 AM local, 9 AM UTC = 8 AM GMT+01)
+  const endHour = 18; // 6 PM in calendar's timezone (extend to 6 PM to match calendar view)
   const slotDuration = 30; // 30 minutes
 
   // Convert busy slots to timestamps for easy comparison
+  // Google Calendar API returns times in UTC ISO format
   const busyTimes = busySlots.map(slot => ({
     start: new Date(slot.start).getTime(),
     end: new Date(slot.end).getTime(),
   }));
 
+  // Generate slots in UTC
+  // Calendar shows GMT+01, so 9 AM UTC = 10 AM GMT+01, 5 PM UTC = 6 PM GMT+01
   for (let hour = startHour; hour < endHour; hour++) {
     for (let minute = 0; minute < 60; minute += slotDuration) {
-      const slotStart = new Date(`${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`);
+      // Create UTC date for the slot (explicitly UTC with Z)
+      const slotStart = new Date(`${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00.000Z`);
       const slotEnd = new Date(slotStart.getTime() + slotDuration * 60000);
       
-      // Check if slot overlaps with any busy time
+      // Check if slot overlaps with any busy time (all in UTC milliseconds)
       const slotStartTime = slotStart.getTime();
       const slotEndTime = slotEnd.getTime();
       
@@ -140,7 +153,7 @@ function generateTimeSlots(date: string, busySlots: Array<{ start: string; end: 
         (slotStartTime <= busy.start && slotEndTime >= busy.end)
       );
 
-      // Use UTC timezone for consistency
+      // Return in UTC ISO format - frontend will convert to user's local timezone for display
       slots.push({
         start: slotStart.toISOString(),
         end: slotEnd.toISOString(),
