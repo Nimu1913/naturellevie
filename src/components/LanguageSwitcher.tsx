@@ -32,7 +32,7 @@ export const LanguageSwitcher = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="text-steel-300 hover:text-steel-100 transition-colors p-2"
+        className="text-charcoal-500 hover:text-sage-400 transition-colors p-2"
         aria-label="Select language"
       >
         <svg 
@@ -51,13 +51,13 @@ export const LanguageSwitcher = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-40 bg-obsidian-800 border border-crystal-edge/30 rounded-lg shadow-lg overflow-hidden z-50">
+        <div className="absolute right-0 top-full mt-2 w-40 bg-white border border-linen-300 rounded-lg shadow-lg overflow-hidden z-50">
           <button
             onClick={() => handleLanguageSelect('en')}
             className={`w-full text-left px-4 py-3 text-sm transition-colors ${
               language === 'en'
-                ? 'bg-obsidian-700 text-steel-100'
-                : 'text-steel-300 hover:bg-obsidian-700/50 hover:text-steel-100'
+                ? 'bg-sage-100 text-sage-600'
+                : 'text-charcoal-500 hover:bg-linen-100 hover:text-sage-400'
             }`}
           >
             <div className="flex items-center gap-2">
@@ -67,10 +67,10 @@ export const LanguageSwitcher = () => {
           </button>
           <button
             onClick={() => handleLanguageSelect('sv')}
-            className={`w-full text-left px-4 py-3 text-sm transition-colors border-t border-crystal-edge/10 ${
+            className={`w-full text-left px-4 py-3 text-sm transition-colors border-t border-linen-300 ${
               language === 'sv'
-                ? 'bg-obsidian-700 text-steel-100'
-                : 'text-steel-300 hover:bg-obsidian-700/50 hover:text-steel-100'
+                ? 'bg-sage-100 text-sage-600'
+                : 'text-charcoal-500 hover:bg-linen-100 hover:text-sage-400'
             }`}
           >
             <div className="flex items-center gap-2">

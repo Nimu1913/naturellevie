@@ -9,6 +9,7 @@ export default defineConfig({
     assetsDir: 'assets',
   },
   server: {
+    port: 5173,
     proxy: {
       '/cigarrgrossen': {
         target: 'http://localhost:8080',
