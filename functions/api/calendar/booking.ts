@@ -134,6 +134,9 @@ export async function onRequestPost({ request, env }: { request: Request; env: {
         to: [email],
         subject: `Booking Request: ${packageName}`,
         html: `
+          <div style="text-align: center; margin-bottom: 32px;">
+            <img src="https://obsidianpeaks.com/OP.big.png" alt="Obsidian Peaks" style="max-width: 200px; height: auto;" />
+          </div>
           <h2>Booking Request Received</h2>
           <p>Hi ${firstName},</p>
           <p>We've received your booking request for <strong>${packageName}</strong>.</p>

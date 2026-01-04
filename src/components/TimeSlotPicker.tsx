@@ -7,6 +7,40 @@ export interface TimeSlot {
   available: boolean;
 }
 
+const TIME_ZONE = "Europe/Stockholm";
+const LOOKAHEAD_DAYS = 14;
+
+function ymdInTZ(date: Date, timeZone: string): string {
+  const dtf = new Intl.DateTimeFormat("en-CA", { // en-CA => YYYY-MM-DD
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return dtf.format(date);
+}
+
+function weekdayInTZ(dateKey: string, timeZone: string): number {
+  // Use noon UTC to avoid date-edge weirdness
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const noonUTC = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const wd = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" }).format(noonUTC);
+  return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(wd);
+}
+
+function addDaysDateKey(dateKey: string, days: number): string {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const base = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const next = new Date(base.getTime() + days * 86400000);
+  return ymdInTZ(next, TIME_ZONE);
+}
+
+function mondayOfWeek(dateKey: string): string {
+  const wd = weekdayInTZ(dateKey, TIME_ZONE); // 0..6
+  const daysToMonday = wd === 0 ? 6 : wd - 1;
+  return addDaysDateKey(dateKey, -daysToMonday);
+}
+
 interface TimeSlotPickerProps {
   packageName: string;
   onTimeSelect: (timeSlot: { start: string; end: string }) => void;
@@ -21,43 +55,60 @@ export const TimeSlotPicker = ({ packageName, onTimeSelect }: TimeSlotPickerProp
   const [error, setError] = useState<string | null>(null);
   const [weekGroups, setWeekGroups] = useState<Array<{ label: string; dates: string[] }>>([]);
 
-  // Generate this week and next week grouped by week
+  // Build available days from actual availability data
   useEffect(() => {
-    const today = new Date();
-    const groups: Array<{ label: string; dates: string[] }> = [];
-    
-    // Get the start of this week (Monday)
-    const thisMonday = new Date(today);
-    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Days to go back to Monday
-    thisMonday.setDate(today.getDate() - daysToMonday);
-    thisMonday.setHours(0, 0, 0, 0);
-    
-    // Generate dates for this week (Mon-Fri)
-    const thisWeekDates: string[] = [];
-    for (let i = 0; i < 5; i++) {
-      const date = new Date(thisMonday);
-      date.setDate(thisMonday.getDate() + i);
-      thisWeekDates.push(date.toISOString().split('T')[0]);
+    let cancelled = false;
+
+    async function buildAvailableDays() {
+      const todayKey = ymdInTZ(new Date(), TIME_ZONE);
+
+      // candidate weekday dates (today..+13), skip weekends
+      const candidates: string[] = [];
+      for (let i = 0; i < LOOKAHEAD_DAYS; i++) {
+        const dk = addDaysDateKey(todayKey, i);
+        const wd = weekdayInTZ(dk, TIME_ZONE);
+        if (wd === 0 || wd === 6) continue; // Sun/Sat
+        candidates.push(dk);
+      }
+
+      // Fetch availability for each candidate, keep only dates with >= 1 available slot
+      const availableDates: string[] = [];
+      for (const dk of candidates) {
+        try {
+          const res = await fetch(`/api/calendar/availability?date=${dk}&package=${packageName}`);
+          if (!res.ok) continue;
+          const data = await res.json();
+          const hasAvail = (data.timeSlots || []).some((s: TimeSlot) => s.available);
+          if (hasAvail) availableDates.push(dk);
+        } catch {
+          // ignore individual failures, keep going
+        }
+        if (cancelled) return;
+      }
+
+      // Group into This week / Next week based on Stockholm week
+      const thisMon = mondayOfWeek(todayKey);
+      const nextMon = addDaysDateKey(thisMon, 7);
+      const thisWeekSet = new Set(Array.from({ length: 5 }, (_, i) => addDaysDateKey(thisMon, i)));
+      const nextWeekSet = new Set(Array.from({ length: 5 }, (_, i) => addDaysDateKey(nextMon, i)));
+
+      const thisWeekDates = availableDates.filter(d => thisWeekSet.has(d));
+      const nextWeekDates = availableDates.filter(d => nextWeekSet.has(d));
+
+      const groups: Array<{ label: string; dates: string[] }> = [];
+      if (thisWeekDates.length) groups.push({ label: "This week", dates: thisWeekDates });
+      if (nextWeekDates.length) groups.push({ label: "Next week", dates: nextWeekDates });
+
+      if (!cancelled) {
+        setWeekGroups(groups);
+        const first = (groups[0]?.dates[0]) || "";
+        setSelectedDate(first);
+      }
     }
-    groups.push({ label: 'This week', dates: thisWeekDates });
-    
-    // Generate dates for next week (Mon-Fri)
-    const nextWeekDates: string[] = [];
-    const nextMonday = new Date(thisMonday);
-    nextMonday.setDate(thisMonday.getDate() + 7);
-    for (let i = 0; i < 5; i++) {
-      const date = new Date(nextMonday);
-      date.setDate(nextMonday.getDate() + i);
-      nextWeekDates.push(date.toISOString().split('T')[0]);
-    }
-    groups.push({ label: 'Next week', dates: nextWeekDates });
-    
-    setWeekGroups(groups);
-    if (thisWeekDates.length > 0) {
-      setSelectedDate(thisWeekDates[0]);
-    }
-  }, []);
+
+    buildAvailableDays();
+    return () => { cancelled = true; };
+  }, [packageName]);
 
   // Fetch available time slots when date is selected
   useEffect(() => {
@@ -98,28 +149,30 @@ export const TimeSlotPicker = ({ packageName, onTimeSelect }: TimeSlotPickerProp
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+  const formatDate = (dateKey: string) => {
+    const todayKey = ymdInTZ(new Date(), TIME_ZONE);
+    const tomorrowKey = addDaysDateKey(todayKey, 1);
 
-    if (dateString === today.toISOString().split('T')[0]) {
-      return t.bookingToday || 'Today';
-    }
-    if (dateString === tomorrow.toISOString().split('T')[0]) {
-      return t.bookingTomorrow || 'Tomorrow';
-    }
+    if (dateKey === todayKey) return t.bookingToday || "Today";
+    if (dateKey === tomorrowKey) return t.bookingTomorrow || "Tomorrow";
 
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const [y, m, d] = dateKey.split("-").map(Number);
+    const noonUTC = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+    return noonUTC.toLocaleDateString("en-US", {
+      timeZone: TIME_ZONE,
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
   };
 
-  const formatTime = (timeString: string) => {
-    const date = new Date(timeString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString("en-US", {
+      timeZone: TIME_ZONE,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
     });
   };
 
