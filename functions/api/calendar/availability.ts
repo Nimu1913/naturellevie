@@ -45,6 +45,14 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
     const timeMin = new Date(`${date}T00:00:00Z`).toISOString();
     const timeMax = new Date(`${date}T23:59:59Z`).toISOString();
 
+    // Try both the calendar ID as-is and as an email format
+    // Appointment scheduling calendars might need email format
+    const calendarIdsToTry = [
+      calendarId,
+      `${calendarId}@group.calendar.google.com`,
+      calendarId.includes('@') ? calendarId : `${calendarId.split('_')[0]}@group.calendar.google.com`
+    ];
+
     const freeBusyResponse = await fetch(
       `https://www.googleapis.com/calendar/v3/freeBusy?key=${env.GOOGLE_CALENDAR_API_KEY}`,
       {
@@ -55,7 +63,7 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
         body: JSON.stringify({
           timeMin,
           timeMax,
-          items: [{ id: calendarId }],
+          items: calendarIdsToTry.map(id => ({ id })),
         }),
       }
     );
@@ -82,10 +90,23 @@ export async function onRequestGet({ request, env }: { request: Request; env: { 
     
     // Log full response for debugging
     console.log('Free/Busy API Response:', JSON.stringify(freeBusyData, null, 2));
-    console.log('Calendar ID used:', calendarId);
+    console.log('Calendar IDs tried:', calendarIdsToTry);
     console.log('Calendar keys in response:', Object.keys(freeBusyData.calendars || {}));
     
-    const busySlots = freeBusyData.calendars[calendarId]?.busy || [];
+    // Try to find busy slots from any of the calendar IDs we tried
+    let busySlots: Array<{ start: string; end: string }> = [];
+    for (const id of calendarIdsToTry) {
+      if (freeBusyData.calendars?.[id]?.busy) {
+        busySlots = freeBusyData.calendars[id].busy;
+        console.log(`Found busy slots using calendar ID: ${id}`);
+        break;
+      }
+    }
+    
+    if (busySlots.length === 0) {
+      // Try the original calendar ID as fallback
+      busySlots = freeBusyData.calendars?.[calendarId]?.busy || [];
+    }
 
     // Log busy slots for debugging
     console.log(`Found ${busySlots.length} busy slot(s) for date ${date}`);
