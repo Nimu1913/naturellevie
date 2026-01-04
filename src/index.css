@@ -35,6 +35,24 @@ body {
   border-radius: 3px;
 }
 
+/* Thin scrollbar for horizontal date selector */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(107, 140, 173, 0.3);
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 140, 173, 0.5);
+}
+
 /* Gradient text - steel blue obsidian style */
 .gradient-text {
   background: linear-gradient(135deg, #9eb4d4 0%, #6b8cad 40%, #4a6080 70%, #8fa8c4 100%);

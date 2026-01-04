@@ -81,16 +81,19 @@ function App() {
       icon: iconRocket,
       title: t.ventureBuilding,
       description: t.ventureDesc,
+      isGrowthAds: false,
     },
     {
       icon: iconChart,
       title: t.growthAds,
       description: t.growthDesc,
+      isGrowthAds: true,
     },
     {
       icon: iconGears,
       title: t.techConsulting,
       description: t.techDesc,
+      isGrowthAds: false,
     }
   ]
 
@@ -110,7 +113,7 @@ function App() {
       />
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-5 bg-obsidian-950/80 backdrop-blur-md border-b border-crystal-edge/10">
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-5 bg-obsidian-950/65 backdrop-blur-md border-b border-crystal-edge/10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img src={logoSmall} alt="Obsidian Peaks" className="h-12 w-auto" />
@@ -149,11 +152,6 @@ function App() {
           <div className="absolute bottom-1/3 right-1/4 w-56 h-56 bg-steel-500/5 rounded-full blur-[100px] animate-float" style={{ animationDelay: '3s' }} />
           
           <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} flex flex-col items-center w-full`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-crystal-edge/30 bg-obsidian-800/50 mb-8">
-              <span className="w-2 h-2 bg-steel-400 rounded-full animate-pulse" />
-              <span className="text-sm font-mono text-steel-300">Available for new projects</span>
-            </div>
-            
             <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-4 text-steel-100 w-full" style={{ textAlign: 'center' }}>
               {t.weBuild}
               <br />
@@ -213,7 +211,17 @@ function App() {
                   <img src={service.icon} alt={service.title} className="w-48 h-48 object-contain rounded-xl icon-soft-edge" />
                 </div>
                 <h3 className="font-display text-2xl font-semibold mb-4 text-steel-200">{service.title}</h3>
-                <p className="text-steel-400 leading-relaxed">{service.description}</p>
+                <p className="text-steel-400 leading-relaxed mb-6">{service.description}</p>
+                <div className="flex flex-row gap-3">
+                  <a href="#contact" className="btn-obsidian flex-1 flex items-center justify-center text-center">
+                    {t.learnMore}
+                  </a>
+                  {service.isGrowthAds && (
+                    <a href="/pricing" className="btn-obsidian-outline flex-1 flex items-center justify-center text-center">
+                      {t.viewPricing}
+                    </a>
+                  )}
+                </div>
               </div>
             ))}
           </div>
